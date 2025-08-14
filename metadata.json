@@ -1,0 +1,5 @@
+{
+  "name": "AI Prompt Optimizer",
+  "description": "An application that uses the Gemini API to refine and improve user-provided prompts for Large Language Models. It highlights changes, provides explanations, and maintains a history of your past prompts.",
+  "requestFramePermissions": []
+}
