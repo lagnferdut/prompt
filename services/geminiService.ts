@@ -2,11 +2,22 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { GEMINI_MODEL } from '../constants';
 import { OptimizedSegment } from "../types";
 
-if (!process.env.API_KEY) {
-    throw new Error("API_KEY environment variable not set.");
-}
+let aiInstance: GoogleGenAI | null = null;
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const getAiClient = (): GoogleGenAI => {
+    if (!aiInstance) {
+        // The instructions are strict: "The API key must be obtained exclusively from the environment variable process.env.API_KEY."
+        // We follow this, assuming the execution environment provides `process`.
+        // If not, the error will be caught by the calling function's try-catch block and displayed gracefully in the UI.
+        const apiKey = process.env.API_KEY;
+        if (!apiKey) {
+            throw new Error("Klucz API nie jest ustawiony w zmiennych środowiskowych. Aplikacja nie może połączyć się z API.");
+        }
+        aiInstance = new GoogleGenAI({ apiKey });
+    }
+    return aiInstance;
+};
+
 
 const responseSchema = {
     type: Type.ARRAY,
@@ -46,6 +57,7 @@ Twoja odpowiedź MUSI być tablicą obiektów JSON, ściśle przestrzegając dos
 
 export async function optimizePrompt(prompt: string): Promise<OptimizedSegment[]> {
   try {
+    const ai = getAiClient();
     const response = await ai.models.generateContent({
       model: GEMINI_MODEL,
       contents: prompt,
